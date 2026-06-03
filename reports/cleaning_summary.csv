@@ -1,0 +1,9 @@
+metric,value
+rows_before,70000
+rows_after,69946
+duplicate_rows_remaining,0
+duplicate_customerID_remaining,0
+invalid_tenure_remaining,0
+invalid_MonthlyCharges_remaining,0
+invalid_TotalCharges_remaining,0
+service_logic_inconsistencies_remaining,0

@@ -1,0 +1,1 @@
+Recommended threshold for high churn recall: 0.30. This threshold provides recall=0.894 and precision=0.699.
