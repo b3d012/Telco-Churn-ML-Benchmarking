@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Telco churn machine learning benchmarking case study by Abdullah Al Wazzan." />
+  <title>Telco Churn ML Benchmarking | Abdullah Al Wazzan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-orb bg-orb-a"></div>
+  <div class="bg-orb bg-orb-b"></div>
+  <div class="bg-grid"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#top">
+      <span class="brand-mark">AAW</span>
+      <span class="brand-text">Telco Churn ML Benchmarking</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav">
+      <a href="#problem">Problem</a>
+      <a href="#positioning">Positioning</a>
+      <a href="#dataset">Dataset</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#benchmarking">Benchmarking</a>
+      <a href="#xgboost">XGBoost</a>
+      <a href="#pca">PCA</a>
+      <a href="#evaluation">Evaluation</a>
+      <a href="#interpretation">Interpretation</a>
+      <a href="#reproducibility">Reproducibility</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero section reveal">
+      <div class="hero-copy">
+        <p class="eyebrow">AI &amp; Data Science Portfolio Case Study</p>
+        <h1>Machine learning benchmark for telco churn prediction.</h1>
+        <p class="subtitle">
+          A recruiter-facing ML case study comparing supervised models, PCA, tuned XGBoost, calibration, threshold analysis, and model interpretation on a messy telecom churn dataset.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/b3d012/Telco-Churn-ML-Benchmarking" target="_blank" rel="noreferrer">View GitHub Repo</a>
+          <a class="btn btn-secondary" href="https://b3d012.github.io/" target="_blank" rel="noreferrer">Back to Portfolio</a>
+        </div>
+        <div class="chip-row">
+          <span class="chip">ML Benchmarking</span>
+          <span class="chip">XGBoost Tuning</span>
+          <span class="chip">PCA</span>
+          <span class="chip">Calibration</span>
+          <span class="chip">Threshold Analysis</span>
+          <span class="chip">Model Interpretation</span>
+        </div>
+      </div>
+
+      <div class="hero-panel glass-card">
+        <div class="stats-grid">
+          <div class="stat">
+            <span class="stat-label">Raw rows</span>
+            <strong data-count="70000">70,000</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Cleaned rows</span>
+            <strong data-count="69946">69,946</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Best model</span>
+            <strong>Logistic Regression</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Best ROC-AUC</span>
+            <strong data-count="0.7906">0.7906</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Recall</span>
+            <strong data-count="0.8941">0.8941</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Brier score</span>
+            <strong data-count="0.1682">0.1682</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="problem" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">01. Problem</p>
+        <h2>Why this benchmark matters</h2>
+      </div>
+      <div class="glass-card text-card">
+        <p>
+          Telecom churn prediction is valuable because companies want to identify customers who are likely to leave and prioritize retention outreach before revenue disappears. This project focuses on choosing and interpreting the right machine learning model, not just cleaning the dataset.
+        </p>
+      </div>
+    </section>
+
+    <section id="positioning" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">02. Project Positioning</p>
+        <h2>Distinct from the data preparation repo</h2>
+      </div>
+      <div class="comparison-grid">
+        <article class="glass-card compare-card">
+          <h3>Data Preparation repo</h3>
+          <p>Focuses on cleaning, validation, data quality, and leakage-safe preprocessing.</p>
+        </article>
+        <article class="glass-card compare-card highlight">
+          <h3>This ML Benchmarking repo</h3>
+          <p>Focuses on supervised model comparison, PCA, XGBoost tuning, calibration, thresholding, and feature interpretation.</p>
+        </article>
+      </div>
+      <div class="inline-link glass-card">
+        <span>Related project:</span>
+        <a href="https://b3d012.github.io/Telco-Churn-Data-Preparation-and-Prediction/" target="_blank" rel="noreferrer">Telco Data Preparation and Prediction</a>
+      </div>
+    </section>
+
+    <section id="dataset" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">03. Dataset and Validation</p>
+        <h2>Clean target, protected split, and zero remaining data issues</h2>
+      </div>
+      <div class="metrics-grid">
+        <div class="glass-card metric-card"><span>Raw rows</span><strong>70,000</strong></div>
+        <div class="glass-card metric-card"><span>Cleaned rows</span><strong>69,946</strong></div>
+        <div class="glass-card metric-card"><span>Duplicate rows remaining</span><strong>0</strong></div>
+        <div class="glass-card metric-card"><span>Duplicate customer IDs remaining</span><strong>0</strong></div>
+        <div class="glass-card metric-card"><span>Service logic inconsistencies remaining</span><strong>0</strong></div>
+        <div class="glass-card metric-card"><span>Invalid numeric values remaining</span><strong>0</strong></div>
+      </div>
+      <div class="glass-card text-card">
+        <p>
+          Preprocessing is still fit only on the training split to avoid leakage. The cleaned dataset is used as the modeling input, but imputers, encoders, scaling, PCA, and interpretation are all trained on training data only.
+        </p>
+      </div>
+    </section>
+
+    <section id="workflow" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">04. ML Workflow</p>
+        <h2>Leaky steps were blocked by design</h2>
+      </div>
+      <div class="workflow glass-card">
+        <div class="workflow-track">
+          <span>Raw Telco CSV</span>
+          <span>Clean target and feature contract</span>
+          <span>Train/test split</span>
+          <span>Pipeline preprocessing</span>
+          <span>Baseline models</span>
+          <span>Benchmark models</span>
+          <span>PCA</span>
+          <span>XGBoost tuning</span>
+          <span>Calibration</span>
+          <span>Threshold analysis</span>
+          <span>Model interpretation</span>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <article class="glass-card feature-card"><h3>Leakage-safe split</h3><p>Train/test separation happened before fitting imputers, encoders, scaling, and PCA.</p></article>
+        <article class="glass-card feature-card"><h3>ColumnTransformer preprocessing</h3><p>Numeric and categorical features were handled in a single reproducible sklearn pipeline.</p></article>
+        <article class="glass-card feature-card"><h3>Baseline comparison</h3><p>Default classifiers established a fair starting point for the benchmark.</p></article>
+        <article class="glass-card feature-card"><h3>XGBoost tuning</h3><p>Randomized search tested a small, honest parameter grid without overclaiming a winner.</p></article>
+        <article class="glass-card feature-card"><h3>PCA feature-space analysis</h3><p>PCA was used for visualization and structure checks, not as a shortcut for classification.</p></article>
+        <article class="glass-card feature-card"><h3>Calibration and threshold analysis</h3><p>Probability quality and decision thresholds were examined for business usefulness.</p></article>
+        <article class="glass-card feature-card"><h3>Permutation importance and SHAP fallback</h3><p>Permutation importance is the main explanation method, with SHAP used only if available.</p></article>
+      </div>
+    </section>
+
+    <section id="benchmarking" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">05. Model Benchmarking</p>
+        <h2>Logistic regression remained the best benchmark model by ROC-AUC</h2>
+      </div>
+      <div class="table-wrap glass-card">
+        <table class="metric-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>F1</th>
+              <th>ROC-AUC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="best-row"><td>Logistic Regression</td><td>0.7696</td><td>0.6988</td><td>0.8941</td><td>0.7845</td><td>0.7906</td></tr>
+            <tr><td>Gradient Boosting</td><td>0.7695</td><td>0.6988</td><td>0.8938</td><td>0.7844</td><td>0.7891</td></tr>
+            <tr><td>XGBoost</td><td>0.7695</td><td>0.6988</td><td>0.8939</td><td>0.7844</td><td>0.7890</td></tr>
+            <tr><td>Random Forest</td><td>0.7587</td><td>0.6988</td><td>0.8529</td><td>0.7682</td><td>0.7881</td></tr>
+            <tr><td>KNN</td><td>0.6978</td><td>0.6609</td><td>0.7302</td><td>0.6939</td><td>0.7433</td></tr>
+            <tr><td>Decision Tree</td><td>0.6577</td><td>0.6360</td><td>0.6312</td><td>0.6336</td><td>0.6561</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="glass-card text-card">
+        <p>
+          Logistic regression remained the best benchmark model by ROC-AUC and is also the easiest to explain, which matters when a recruiter or business stakeholder wants both performance and interpretability.
+        </p>
+      </div>
+      <div class="gallery-grid">
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/model_roc_auc_comparison.png" data-alt="Bar chart comparing ROC-AUC scores across benchmark models." data-title="ROC-AUC Comparison">
+          <img src="assets/figures/model_roc_auc_comparison.png" alt="Bar chart comparing ROC-AUC scores across benchmark models." loading="lazy">
+          <span>ROC-AUC Comparison</span>
+        </button>
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/model_f1_comparison.png" data-alt="Bar chart comparing F1 scores across benchmark models." data-title="F1 Comparison">
+          <img src="assets/figures/model_f1_comparison.png" alt="Bar chart comparing F1 scores across benchmark models." loading="lazy">
+          <span>F1 Comparison</span>
+        </button>
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/model_recall_comparison.png" data-alt="Bar chart comparing recall across benchmark models." data-title="Recall Comparison">
+          <img src="assets/figures/model_recall_comparison.png" alt="Bar chart comparing recall across benchmark models." loading="lazy">
+          <span>Recall Comparison</span>
+        </button>
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/baseline_model_comparison.png" data-alt="Baseline comparison chart showing ROC-AUC and F1 for default models." data-title="Baseline Comparison">
+          <img src="assets/figures/baseline_model_comparison.png" alt="Baseline comparison chart showing ROC-AUC and F1 for default models." loading="lazy">
+          <span>Baseline Comparison</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="xgboost" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">06. XGBoost Tuning</p>
+        <h2>Tuned XGBoost was competitive, but it did not beat the logistic model</h2>
+      </div>
+      <div class="metrics-grid">
+        <div class="glass-card metric-card"><span>Tuned XGBoost ROC-AUC</span><strong>0.7899</strong></div>
+        <div class="glass-card metric-card"><span>Beat logistic_balanced?</span><strong>No</strong></div>
+        <div class="glass-card metric-card"><span>n_estimators</span><strong>200</strong></div>
+        <div class="glass-card metric-card"><span>max_depth</span><strong>4</strong></div>
+        <div class="glass-card metric-card"><span>learning_rate</span><strong>0.1</strong></div>
+        <div class="glass-card metric-card"><span>subsample / colsample</span><strong>1.0 / 0.8</strong></div>
+      </div>
+      <div class="glass-card text-card">
+        <p>
+          XGBoost was tested and tuned, but the simpler logistic model slightly won on ROC-AUC in this run. That result is useful because it shows the benchmark was honest rather than forcing a more complex model to “win.”
+        </p>
+      </div>
+    </section>
+
+    <section id="pca" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">07. PCA Analysis</p>
+        <h2>PCA helped with visualization, not with full class separation</h2>
+      </div>
+      <div class="metrics-grid">
+        <div class="glass-card metric-card"><span>PC1 explained variance</span><strong>12.86%</strong></div>
+        <div class="glass-card metric-card"><span>PC2 explained variance</span><strong>10.54%</strong></div>
+        <div class="glass-card metric-card"><span>PC1 + PC2 cumulative</span><strong>23.40%</strong></div>
+      </div>
+      <div class="glass-card text-card">
+        <p>
+          PCA was useful for visualizing feature-space structure, but churn classes were not cleanly separable in 2D. That makes PCA a good diagnostic lens, not a replacement for the supervised benchmark.
+        </p>
+      </div>
+      <div class="gallery-grid">
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/pca_explained_variance.png" data-alt="PCA explained variance bar and line chart." data-title="PCA Explained Variance">
+          <img src="assets/figures/pca_explained_variance.png" alt="PCA explained variance bar and line chart." loading="lazy">
+          <span>PCA Explained Variance</span>
+        </button>
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/pca_churn_scatter.png" data-alt="Two-dimensional PCA scatter plot colored by churn outcome." data-title="PCA Scatter">
+          <img src="assets/figures/pca_churn_scatter.png" alt="Two-dimensional PCA scatter plot colored by churn outcome." loading="lazy">
+          <span>PCA Churn Scatter</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="evaluation" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">08. Final Evaluation Evidence</p>
+        <h2>Held-out evaluation visuals</h2>
+      </div>
+      <div class="gallery-grid">
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/best_model_confusion_matrix.png" data-alt="Confusion matrix for the best churn model on the test split." data-title="Confusion Matrix">
+          <img src="assets/figures/best_model_confusion_matrix.png" alt="Confusion matrix for the best churn model on the test split." loading="lazy">
+          <span>Confusion Matrix</span>
+        </button>
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/best_model_roc_curve.png" data-alt="ROC curve for the best churn model on the held-out test set." data-title="ROC Curve">
+          <img src="assets/figures/best_model_roc_curve.png" alt="ROC curve for the best churn model on the held-out test set." loading="lazy">
+          <span>ROC Curve</span>
+        </button>
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/best_model_precision_recall_curve.png" data-alt="Precision-recall curve for the best churn model on the held-out test set." data-title="Precision-Recall Curve">
+          <img src="assets/figures/best_model_precision_recall_curve.png" alt="Precision-recall curve for the best churn model on the held-out test set." loading="lazy">
+          <span>Precision-Recall Curve</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="threshold" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">09. Threshold and Calibration</p>
+        <h2>Probability quality and operating point selection</h2>
+      </div>
+      <div class="metrics-grid">
+        <div class="glass-card metric-card"><span>Brier score</span><strong>0.1682</strong></div>
+        <div class="glass-card metric-card"><span>Mean calibration gap</span><strong>0.0203</strong></div>
+        <div class="glass-card metric-card"><span>Calibration status</span><strong>Reasonably calibrated</strong></div>
+        <div class="glass-card metric-card"><span>Best recall threshold</span><strong>0.25</strong></div>
+        <div class="glass-card metric-card"><span>Recall at 0.25</span><strong>0.896</strong></div>
+        <div class="glass-card metric-card"><span>Precision at 0.25</span><strong>0.697</strong></div>
+        <div class="glass-card metric-card"><span>Best F1 threshold</span><strong>0.30</strong></div>
+        <div class="glass-card metric-card"><span>Recall at 0.30</span><strong>0.894</strong></div>
+        <div class="glass-card metric-card"><span>Precision at 0.30</span><strong>0.699</strong></div>
+      </div>
+      <div class="glass-card text-card">
+        <p>
+          Threshold tuning has limited effect in parts of the range because the model scores are concentrated. In practical terms, the operating threshold still matters, but not every small step changes the predictions meaningfully.
+        </p>
+      </div>
+      <div class="gallery-grid">
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/calibration_curve.png" data-alt="Calibration curve comparing predicted probabilities against observed positive rates." data-title="Calibration Curve">
+          <img src="assets/figures/calibration_curve.png" alt="Calibration curve comparing predicted probabilities against observed positive rates." loading="lazy">
+          <span>Calibration Curve</span>
+        </button>
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/threshold_precision_recall_tradeoff.png" data-alt="Threshold tradeoff chart showing precision, recall, F1, and predicted positive rate across thresholds." data-title="Threshold Tradeoff">
+          <img src="assets/figures/threshold_precision_recall_tradeoff.png" alt="Threshold tradeoff chart showing precision, recall, F1, and predicted positive rate across thresholds." loading="lazy">
+          <span>Threshold Tradeoff</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="interpretation" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">10. Model Interpretation</p>
+        <h2>Permutation importance is the main explanation method</h2>
+      </div>
+      <div class="glass-card text-card">
+        <p>
+          Top churn drivers from permutation importance are Contract, Partner, OnlineBackup, Dependents, tenure, SeniorCitizen, TotalCharges, StreamingMovies, MonthlyCharges, and MultipleLines. Feature importance should be read as predictive signal, not causal proof.
+        </p>
+      </div>
+      <div class="gallery-grid">
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/permutation_importance_top20.png" data-alt="Top 20 permutation importance chart for the best churn model." data-title="Permutation Importance">
+          <img src="assets/figures/permutation_importance_top20.png" alt="Top 20 permutation importance chart for the best churn model." loading="lazy">
+          <span>Permutation Importance</span>
+        </button>
+        <button class="figure-card reveal-trigger" type="button" data-src="assets/figures/logistic_coefficients_top20.png" data-alt="Top 20 logistic regression coefficients for the best churn model." data-title="Logistic Coefficients">
+          <img src="assets/figures/logistic_coefficients_top20.png" alt="Top 20 logistic regression coefficients for the best churn model." loading="lazy">
+          <span>Logistic Coefficients</span>
+        </button>
+      </div>
+      <div class="glass-card note-card">
+        <p>
+          SHAP did not generate a figure in this repo, so the project falls back to permutation importance for the reliable explanation layer.
+        </p>
+      </div>
+    </section>
+
+    <section id="skills" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">11. Technical Skills Demonstrated</p>
+        <h2>Tools and methods used in the project</h2>
+      </div>
+      <div class="tag-grid">
+        <span class="tag">Python</span>
+        <span class="tag">pandas</span>
+        <span class="tag">NumPy</span>
+        <span class="tag">scikit-learn</span>
+        <span class="tag">XGBoost</span>
+        <span class="tag">PCA</span>
+        <span class="tag">Logistic Regression</span>
+        <span class="tag">Random Forest</span>
+        <span class="tag">Gradient Boosting</span>
+        <span class="tag">KNN</span>
+        <span class="tag">Decision Tree</span>
+        <span class="tag">Calibration</span>
+        <span class="tag">Threshold tuning</span>
+        <span class="tag">Permutation importance</span>
+        <span class="tag">SHAP fallback</span>
+        <span class="tag">ROC-AUC</span>
+        <span class="tag">Precision-recall analysis</span>
+        <span class="tag">GitHub Pages</span>
+      </div>
+    </section>
+
+    <section id="reproducibility" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">12. Reproducibility</p>
+        <h2>Easy to recreate locally</h2>
+      </div>
+      <div class="glass-card code-card">
+        <pre><code>pip install -r requirements.txt
+
+python -m src.clean_and_prepare
+python -m src.baseline_models
+python -m src.model_benchmarking
+python -m src.pca_analysis
+python -m src.tune_xgboost
+python -m src.evaluate_best_model
+python -m src.explain_model
+python -m src.calibration_analysis</code></pre>
+      </div>
+      <div class="glass-card text-card">
+        <p>
+          Generated model files are ignored by Git and can be recreated locally whenever you rerun the pipeline.
+        </p>
+      </div>
+    </section>
+
+    <section class="section reveal closing">
+      <div class="glass-card closing-card">
+        <p class="eyebrow">13. Recruiter Summary</p>
+        <h2>This project demonstrates practical ML model selection, honest benchmarking, dimensionality reduction, threshold tuning, probability calibration, and feature interpretation on a real churn prediction workflow.</h2>
+      </div>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightbox-backdrop" data-close="true"></div>
+    <div class="lightbox-dialog" role="dialog" aria-modal="true" aria-labelledby="lightbox-title">
+      <button class="lightbox-close" type="button" aria-label="Close image viewer">&times;</button>
+      <img id="lightbox-image" src="" alt="">
+      <p id="lightbox-title"></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

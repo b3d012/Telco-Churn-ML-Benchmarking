@@ -228,3 +228,9 @@ That design choice is important because churn prediction can look artificially s
 ## XGBoost Status
 
 `xgboost` is available in this environment and the tuning run completed successfully, but the tuned model did not beat `logistic_balanced` on ROC-AUC. The benchmark winner remains the logistic model, which keeps the project honest and easy to defend in a portfolio review.
+
+## Project Landing Page
+
+A GitHub Pages case study landing page is available here:
+
+https://b3d012.github.io/Telco-Churn-ML-Benchmarking/
