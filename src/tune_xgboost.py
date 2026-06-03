@@ -58,7 +58,7 @@ def main() -> pd.DataFrame | None:
     search = RandomizedSearchCV(
         estimator=pipeline,
         param_distributions=param_distributions,
-        n_iter=15,
+        n_iter=10,
         scoring="roc_auc",
         cv=3,
         random_state=RANDOM_STATE,
@@ -81,9 +81,49 @@ def main() -> pd.DataFrame | None:
     tuned_metrics = evaluate_binary_classifier(best_model, X_test, y_test)
     pd.DataFrame([{"model": "tuned_xgboost", **tuned_metrics}]).to_csv(REPORTS_DIR / "tuned_xgboost_metrics.csv", index=False)
 
+    benchmark_metrics_path = REPORTS_DIR / "model_benchmark_metrics.csv"
+    benchmark_best_roc_auc = None
+    benchmark_best_model = None
+    if benchmark_metrics_path.exists():
+        benchmark_df = pd.read_csv(benchmark_metrics_path)
+        if not benchmark_df.empty and "roc_auc" in benchmark_df.columns:
+            benchmark_best = benchmark_df.sort_values("roc_auc", ascending=False).iloc[0]
+            benchmark_best_roc_auc = float(benchmark_best["roc_auc"])
+            benchmark_best_model = str(benchmark_best["model"])
+
+    promoted = False
+    if benchmark_best_roc_auc is None or tuned_metrics["roc_auc"] > benchmark_best_roc_auc:
+        dump(best_model, MODELS_DIR / "best_model.joblib")
+        promoted = True
+        best_model_note = (
+            "Tuned XGBoost became the new best model because it achieved a higher ROC-AUC "
+            f"than the benchmark best model."
+        )
+    else:
+        best_model_note = (
+            "Tuned XGBoost did not beat the benchmark best model by ROC-AUC, so "
+            "models/best_model.joblib was left unchanged."
+        )
+
+    (REPORTS_DIR / "xgboost_benchmark_note.md").write_text(
+        "\n".join(
+            [
+                f"Benchmark best model: {benchmark_best_model or 'unknown'}",
+                f"Benchmark best ROC-AUC: {benchmark_best_roc_auc:.4f}" if benchmark_best_roc_auc is not None else "Benchmark best ROC-AUC: unavailable",
+                f"Tuned XGBoost ROC-AUC: {tuned_metrics['roc_auc']:.4f}",
+                best_model_note,
+            ]
+        ),
+        encoding="utf-8",
+    )
+
     print(f"Best XGBoost CV ROC-AUC: {search.best_score_:.4f}")
     print(f"Best XGBoost parameters: {search.best_params_}")
     print(f"Test ROC-AUC after tuning: {tuned_metrics['roc_auc']:.4f}")
+    if promoted:
+        print("Tuned XGBoost promoted to best_model.joblib.")
+    else:
+        print("Tuned XGBoost did not replace the benchmark best model.")
     return cv_results
 
 

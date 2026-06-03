@@ -1,0 +1,1 @@
+The model probabilities appear reasonably calibrated for a portfolio benchmark. The Brier score is 0.1682, and the average calibration gap across quantile bins is 0.0203.

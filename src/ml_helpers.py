@@ -187,6 +187,8 @@ def plot_threshold_tradeoff(df: pd.DataFrame, path: Path) -> Path:
     ax.plot(df["threshold"], df["precision"], marker="o", label="Precision")
     ax.plot(df["threshold"], df["recall"], marker="o", label="Recall")
     ax.plot(df["threshold"], df["f1"], marker="o", label="F1")
+    if "predicted_positive_rate" in df.columns:
+        ax.plot(df["threshold"], df["predicted_positive_rate"], marker="o", label="Predicted positive rate", linestyle="--")
     ax.set_xlabel("Threshold")
     ax.set_ylabel("Score")
     ax.set_title("Threshold Precision-Recall Tradeoff")
